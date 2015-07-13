@@ -27,7 +27,7 @@ public:
 	Bool EnableGadgets(void);
 
 	Bool Select();
-	void SerchiType(BaseDocument* doc, BaseObject* op, Int32 n, BaseList2D* Lop, Bool Bflag,  NBIT nbit, Bool solo , Bool GetIns, Bool Atag, Bool Lastflag, Bool P0flag);
+	void SerchiType(BaseDocument* doc, BaseObject* op, Int32 n, BaseList2D* Lop, Bool Bflag,  NBIT nbit, Bool solo , Bool GetIns, Bool Atag, Bool Lastflag, Bool P0flag, Bool UVW);
 	void TreeUnFold(BaseDocument* doc, BaseObject* tg,  NBIT nbit);
     Bool SetSelectObj();
 	Bool Reset();

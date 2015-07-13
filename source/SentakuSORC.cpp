@@ -84,6 +84,7 @@ Bool Sentaku::EnableGadgets(void)
 					 Enable(IDC_CHKTAB, true);
                   //  Enable(IDC_CHKLAST, false);
                     Enable(IDC_CHK0POLY, false);
+					Enable(IDC_CHKUVW, true);
 
 				}
 				else
@@ -92,6 +93,7 @@ Bool Sentaku::EnableGadgets(void)
 					Enable(IDC_CHKTAB, false);
                   //  Enable(IDC_CHKLAST, false);
                     Enable(IDC_CHK0POLY, false);
+					Enable(IDC_CHKUVW, false);
 
 				}
 				
@@ -105,6 +107,7 @@ Bool Sentaku::EnableGadgets(void)
 			Enable(IDC_CHKTAB, false);
             Enable(IDC_CHKLAST, false);
             Enable(IDC_CHK0POLY, false);
+			Enable(IDC_CHKUVW, false);
 		}
 	}
 	else
@@ -114,6 +117,7 @@ Bool Sentaku::EnableGadgets(void)
 		Enable(IDC_CHKTAB, false);
         Enable(IDC_CHKLAST, false);
         Enable(IDC_CHK0POLY, false);
+		Enable(IDC_CHKUVW, false);
 	}
 
 	Bool flag;
@@ -227,6 +231,9 @@ Bool Sentaku::Select()
     
     GetBool(IDC_CHKLAST, Lastflag );
     GetBool(IDC_CHK0POLY, P0flag );
+
+	Bool UVW;
+	GetBool(IDC_CHKUVW, UVW);
     
 	if (type == CH7)
 	{
@@ -251,7 +258,7 @@ Bool Sentaku::Select()
 
 	op = doc->GetFirstObject();
 
-	SerchiType(doc, op, type, list, flag, nbit, solo, GetIns, Atag, Lastflag, P0flag);
+	SerchiType(doc, op, type, list, flag, nbit, solo, GetIns, Atag, Lastflag, P0flag, UVW);
 
 	if(Atag)
 	{
@@ -335,7 +342,7 @@ Bool Sentaku::SetSelectObj()
     return true;
 }
 
-void Sentaku::SerchiType(BaseDocument* doc, BaseObject* op, Int32 n, BaseList2D* Lop, Bool Bflag , NBIT nbit, Bool solo, Bool GetIns, Bool Atag, Bool Lastflag, Bool P0flag)
+void Sentaku::SerchiType(BaseDocument* doc, BaseObject* op, Int32 n, BaseList2D* Lop, Bool Bflag , NBIT nbit, Bool solo, Bool GetIns, Bool Atag, Bool Lastflag, Bool P0flag, Bool UVW)
 {
 	
 	while (op)
@@ -681,49 +688,78 @@ void Sentaku::SerchiType(BaseDocument* doc, BaseObject* op, Int32 n, BaseList2D*
 				while (tag)
 				{
 
-					if(tag->IsInstanceOf( Ttexture) && Lop->IsInstanceOf( Ttexture))
+					if( UVW)
 					{
-					
-						TextureTag* Ztag=(TextureTag*)Lop;
-						TextureTag* Xtag=(TextureTag*)tag;
-						BaseMaterial* Amat= Ztag->GetMaterial();
-						BaseMaterial* Bmat= Xtag->GetMaterial();
-						if(Amat == Bmat)
+						if(tag->IsInstanceOf( Ttexture))
 						{
-						
-                             ActionCMD(doc, op, solo,  Lastflag, P0flag, nbit);
-                            	//op->SetBit(BIT_ACTIVE);
-							flag = true;
-
-							if(Atag)
+							TextureTag* Atag=(TextureTag*)tag;
+							GeData d;
+							Atag->GetParameter(DescLevel(TEXTURETAG_PROJECTION), d ,DESCFLAGS_GET_0);
+							if(d.GetInt32() != TEXTURETAG_PROJECTION_UVW)
 							{
-								tag->SetBit(BIT_ACTIVE);
+							   tag->SetBit(BIT_ACTIVE);
+							   op->SetBit(BIT_ACTIVE);
+							   flag = true;
+
 							}
-							else break;	
+							else
+							{
+								tag->DelBit(BIT_ACTIVE);
+							}
 
 						}
-						else
+ 						else
 						{
 							tag->DelBit(BIT_ACTIVE);
 						}
+
 					}
 					else
 					{
-						if (Lop->GetType() == tag->GetType())
+						if(tag->IsInstanceOf( Ttexture) && Lop->IsInstanceOf( Ttexture))
 						{
-                            op->SetBit(BIT_ACTIVE);
-							//op->SetBit(BIT_ACTIVE);
-							flag = true;
-
-							if(Atag)
+					
+							TextureTag* Ztag=(TextureTag*)Lop;
+							TextureTag* Xtag=(TextureTag*)tag;
+							BaseMaterial* Amat= Ztag->GetMaterial();
+							BaseMaterial* Bmat= Xtag->GetMaterial();
+							if(Amat == Bmat)
 							{
-								tag->SetBit(BIT_ACTIVE);
+						
+								//ActionCMD(doc, op, solo,  Lastflag, P0flag, nbit);
+								op->SetBit(BIT_ACTIVE);
+								flag = true;
+
+								if(Atag)
+								{
+									tag->SetBit(BIT_ACTIVE);
+								}
+								else break;	
+
 							}
-							else break;	
+							else
+							{
+								tag->DelBit(BIT_ACTIVE);
+							}
 						}
 						else
 						{
-							tag->DelBit(BIT_ACTIVE);
+							if (Lop->GetType() == tag->GetType())
+							{
+								op->SetBit(BIT_ACTIVE);
+								//op->SetBit(BIT_ACTIVE);
+								flag = true;
+
+								if(Atag)
+								{
+									tag->SetBit(BIT_ACTIVE);
+								}
+								else break;	
+							}
+							else
+							{
+								tag->DelBit(BIT_ACTIVE);
+							}
 						}
 					}
 					tag = tag->GetNext();
@@ -747,7 +783,7 @@ void Sentaku::SerchiType(BaseDocument* doc, BaseObject* op, Int32 n, BaseList2D*
 		}
 		if(!check)
 		{
-			SerchiType(doc, op->GetDown(), n, Lop, Bflag, nbit, solo,  GetIns, Atag, Lastflag, P0flag);
+			SerchiType(doc, op->GetDown(), n, Lop, Bflag, nbit, solo,  GetIns, Atag, Lastflag, P0flag, UVW);
 		}
 		op = op->GetNext();
 	}
