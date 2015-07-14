@@ -159,8 +159,24 @@ Bool Sentaku::Command(Int32 id, const BaseContainer &msg)
 			break;
 		case IDC_SOLO:
 			EnableGadgets();
+        case IDC_CHKUVW:
+            EnableGadgets();
 		break;
-
+        case IDC_CHK0POLY:
+            EnableGadgets();
+            break;
+        case IDC_CHKLAST:
+            EnableGadgets();
+            break;
+        case IDC_CHKTAB:
+            EnableGadgets();
+            break;
+        case IDC_CHKINS:
+            EnableGadgets();
+            break;
+        case IDC_CHK:
+            EnableGadgets();
+            break;
 		default:
 break;
 	}
